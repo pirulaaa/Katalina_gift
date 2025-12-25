@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Preguntas</title>
+<link rel="icon" href="./images/Undertale-icon.png">
+
+<style>
+@font-face {
+    font-family: 'Pixelify Sans';
+    src: url('./fonts/PixelifySans-VariableFont_wght.ttf') format('truetype');
+}
+
+html, body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;   /* 🔒 nunca scroll horizontal */
+    overflow-y: auto;     /* ✅ scroll vertical si hace falta */
+}
+
+body {
+    font-family: 'Pixelify Sans', cursive, sans-serif;
+    color: white;
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* 👈 CLAVE */
+
+    padding-top: 230px;
+    padding-bottom: 60px;
+
+    background-image: url("./images/bg.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+
+.container {
+    border: 11px solid white;
+    padding: 46px;
+    width: 550px;
+    text-align: center;
+    background-color: black;
+}
+
+/* PREGUNTA */
+.question-box {
+    font-size: 25px;
+    margin-bottom: 28px;
+}
+
+/* INPUT */
+input {
+    width: 100%;
+    padding: 14px;
+    font-family: 'Pixelify Sans';
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    font-size: 21px;
+}
+
+input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px #FFD700;
+}
+
+/* BOTONES */
+button {
+    margin-top: 22px;
+    width: 100%;
+    padding: 17px;
+    font-size: 25px;
+    font-family: 'Pixelify Sans';
+    background: black;
+    color: white;
+    border: 6px solid white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #c3c540;
+}
+
+#nextBtn {
+    display: none;
+    background: #4a915c;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ========== INTRO / DESBLOQUEO AUDIO ========== -->
+<div class="container" id="introScreen">
+  <h2 style="font-size: 30px;">HOLA KATALINA Bienvenida a "la sección de preguntas"</h2>
+  <p style="font-size: 20px;">
+    Aquí deberás responder correctamente unas cuantas pregunta.<br>
+    Las preguntas son facilitas asi que me EXTRAÑARIA que no las adivines <br>
+    A LA PRIMERA.
+  </p>
+  <button onclick="startGame()">Comenzar</button>
+</div>
+
+<!-- ========== JUEGO ========== -->
+<div class="container" id="gameScreen" style="display:none;">
+  <div style="text-align:center; font-weight:bold; margin-bottom:12px; font-size: 30px;">
+      Pregunta :
+    </div>
+  <div class="question-box" id="question"></div>
+  
+  <input type="text" id="answer" placeholder="Escribe tu respuesta...">
+
+  <button onclick="checkAnswer()">Confirmar</button>
+    <p id="feedback"></p>
+
+    <!-- 👁️ MENSAJE CUARTA PARED -->
+<div id="personalMessage" class="question-box"></div>
+
+  <button id="nextBtn" onclick="nextQuestion()">Continuar</button>
+
+</div>
+
+<script>
+
+const questions = [
+  { q: "¿Cuál es MI juego favorito? POBRE DE TI QUE LA FALLES...", a: ["undertale"]},
+  { q: "¿Cuál es mi sabor de helado favorito?", a: ["piña"]},
+  { q: "¿En el juego (ULTRAKILL), la humanidad se ha extinguido, dejando atrás un planeta desolado y un Infierno que ha despertado como una entidad biológica y consciente que se alimenta del sufrimiento. Durante la Era Final de las guerras humanas, la ingeniería robótica alcanzó su ápice con la creación de máquinas autónomas que funcionan con sangre como combustible. Entre estas máquinas destaca la unidad V1, un prototipo único diseñado para la movilidad extrema y la reparación instantánea mediante el contacto directo con la sangre fresca. Sin embargo, tras el fin de las guerras y el inicio de la (Paz del Nuevo Mundo), el desarrollo de este modelo se consideró demasiado costoso y poco práctico para la seguridad ciudadana, lo que llevó a la creación de una versión refinada, con un blindaje mucho más resistente y duradero, aunque carente de la capacidad de absorber sangre a través del chasis. Este segundo modelo, que actúa como el principal rival y (espejo) del protagonista en los niveles de Limbo y Greed, posee un conjunto de habilidades casi idéntico al tuyo y una actitud notablemente más arrogante. ¿Cuál es el nombre de este modelo de seguridad carmesí que se enfrenta a (V1) para demostrar quién es la máquina superior? PISTA: ME EXTRAÑAROA QUE NO TE SEPAS ESTA PREGUNTA DE VERDAD TAN POOC ME QUIERES??... UGH.. bueno, si no te la sabes, preguntale al tito, él la sabrá..", a: ["v2"] },
+  { q: "¿Quién sufrío mas, Jesús que fue sometido a una agonía física y psicológica extrema que comenzó con una flagelación brutal, donde su espalda fue desgarrada por látigos con puntas de metal, y continuó con la humillación de una corona de espinas clavada profundamente en su cráneo, sus manos y pies fueron atravesados por clavos de hierro gruesos que sostenían todo el peso de su cuerpo, causándole un dolor punzante y constante en los nervios principales, permaneciendo colgado bajo un sol abrasador, sufriendo una asfixia lenta y dolorosa donde cada aliento requería un esfuerzo sobrehumano al apoyarse en sus heridas abiertas, mientras soportaba la burla de los soldados y el abandono, culminando en tres días de un proceso de muerte y descenso a los infiernos tras haber sido traspasado por una lanza en el costado. O Katalina cuando abre el refri y no tiene una monster helada... ?", a: ["katalina"] },
+  { q: "¿Nombre del personaje de League of Legends que te copio la personalidad y los trastornos y no te pagaron NI UN PESO por copyright? FOK RIOT GAMES", a: ["jinx"] },
+  { q: "¿ME QUIERO HACER UN..", a: ["piercing"] },
+  { q: "¿Quién es: 🚬🐖?", a: [ "trinidad",  "basura de mierda",  "watrini" ,  "watona cigarro",  "gorda hija de puta",  "ballena que se maquilla como la mierda",  "cerda inculiable",  "manteca de mar",  "gorda manos de haitiana",  "fracasada que se abre un tinder pensando que LE VAN A HACER MATCH",  "el terror del mcdonald",  "bola 8", "trini"]},
+  { q: "¿Cómo era la forma en la que el amigo panki del diego se referia a miguelito?", a:["mojon de mierda atrofiado","mojón de mierda atrofiado"]},
+  { q: "¿Cúantos vagabundos nos han dicho que nos vemos lindos juntos? coloca el numero", a: ["2"] },
+  { q: "¿Cuál es TU canción favorita del Soundtrack de Undertale?", a: ["another medium"] },
+  { q: "¿Que tema de Tyler the Creator explica exactamente como te sientes y como eres?", a: ["ifhy"] },
+  { q: "¿y como ultima pregunta. . . si no te la sabes me suicido. . . en verdad no hay ultima pregunta, pero me gustaria decirte unas cosas. . . . . . . . . . . . . . . ", a: [""]},
+
+];
+
+const successMessages = [
+  "QUE LOCURAAAAA EL PUBLICO SE VUELVE LOCOOO, no pense que te la sabrias, tanto me quieres??? Aww",
+  "Ves que las preguntas son facilitas, si sigues asi, probablemente te lleves un premio :3",
+  "Una pregunta muuuy facil, menos mal y el tito estaba ahi para ayudarte, que seriamos sin el... ahora, si esta o sigue en la pieza, dile q se vaya a tomar por culo",
+  "BAHAHAHAAA okei si te la dare por buena, pero claramente sufro mas yo cuando te invito a jugar y al otro dia te pones a jugar con otros pero esta bien, lamentablemente te perdono... ",
+  "Esta wea no es un algoritmo, esta wea no es un bot que me esta baneando, NO ES UN BOT EL QUE ME ESTA BANEANDO CONCHETUMARE, NO ES UN BOT EL QUE M E ESTBA BANEANDO ES UN CONCHETUMARE, QUE TRABAJ EN RITO Y ME ESTA HACIENDO CYBERACOSO HACE MAS DE 2 SEMANAS, ASI QUE A TI BASTARDO CULIAO, VOY A DEMADNAR A LA EMPRESA POR CIBERACOSO CONCHETUMARE, HASTA QUE TE ENCEUNTRNE A TI Y TE ECHEN CAGANDO Y TE METAN A LA CARCEL CONCHETUMARE, PORQUE CON ESTA WEA.... superaste todo los limites bastardo culiao *Llora* superaste todos los limites weon yo... *Rompe en llanto* hermano yo quiero... *Grita de dolor* bastardos culiaos.. que parte... QUE PARTE DE QUE NO TENGO ESTUIDIOS NO TENGO TRABAJO NO ENTIENDEN CONCHETUMARE, QUE PARTE DE QUIERO SER EL MEJOR DEL MUNDO NO ENTEINDEN BASTASRDO CONCHETUAMRE, BASTARDOP CONCHETUMARE PARAAAA, PARA DE BANEARME LAS CUENTAS WEON PARA... *ROMPE EN LLANTO* ME BANEASTE LA SMURF AHORA ME BANEASTA LA PRINCIPAL LOCO ESPERE 2 SEMANAS PARA PODER JUGAR EN MI CUENTA CONCHEUTMAR Y mira el lol reculiao ahora ni abre la wea.. | escribi todo yo manual btw.. ayuda denme pega porfaaaa ",
+  "BAHAHDLIASJLSAKDJLSDAKDLASKÑ PATETICOOO, DALE WEON ESTA SUPER ENTRETE HABLAR CONTIGO ME CAGO DE RISA ACA CON TU WAXA TA COMO PARA HABLARTE OTRO DIA WEON FRACASADOOOOOOOSAIKLJASDLKASDKDS",
+  "Para que sepas, todas estas eran respuestas correctas: trini, trinidad, basura de mierda, watrini, watona cigarro, gorda hija de puta, ballena que se maquilla como la mierda, cerda inculiable, manteca de mar, gorda manos de haitiana, fracasada que se abre un tinder pensando que LE VAN A HACER MATCH, el terror del mcdonald, bola 8, gemela de gragas, entre muchas otras mas. Si las encuentras me cago de risa",
+  "Como extraño ese dia cuando nos estabamos cagando de risa a carcajadas con las manos en la guata en mi pieza. Bonito recuerdo que quizas no te acordabas",
+  "La verdad si sacaste esta pregunta a la primera, me alegraria mucho el dia el saber que tu también te acuerdas, si no es así, no te preocupes :D Ademas, la primera vez fue chistoso, la segunda coincidencia, ya si pasa una tercera vez me voy a matar hard",
+  "Siempre me acuerdo de ti con esa canción porque es tu favorita, tengo muy buena memoria para recordar, habilidad por la que siempre me quedo aferrado al pasado........... seria entretenido poder borrarme la memoria, y poder conocer de 0 a la persona que mas quiero y mas bkn que he conocido en mi vida.............. A ti",
+  "Curioso que justo este sea el tema por el cual yo empece a escuchar a tilin el creador, pudo haber sido random, pudo haber sido coincidencia o quizas algo mas.",
+  "Has aprendido a perdonar."
+];
+
+// ================== ESTADO ==================
+let current = 0;
+let correct = 0;
+let cleanRunUnlocked = sessionStorage.getItem("cleanRunUnlocked");
+
+
+let perfectRun = sessionStorage.getItem("perfectRun");
+if (perfectRun === null) {
+  perfectRun = true;
+  sessionStorage.setItem("perfectRun", "true");
+} else {
+  perfectRun = perfectRun === "true";
+}
+
+let mistakes;
+
+if (cleanRunUnlocked === "true") {
+  // Run limpia desbloqueada
+  mistakes = parseInt(sessionStorage.getItem("mistakes") || "0");
+} else {
+  // Primera vez (o nunca usó el botón secreto)
+  mistakes = 1;
+  sessionStorage.setItem("mistakes", "1");
+}
+
+
+// ================== ELEMENTOS ==================
+const questionEl = document.getElementById("question");
+const feedback = document.getElementById("feedback");
+const answerInput = document.getElementById("answer");
+const nextBtn = document.getElementById("nextBtn");
+const gameStartTime = Date.now();
+
+/* ===== ENTER PARA CONFIRMAR ===== */
+answerInput.addEventListener("keydown", function (e) {
+  if (e.key === "Enter" && nextBtn.style.display === "none") {
+    e.preventDefault();
+    checkAnswer();
+  }
+});
+
+// ================== SONIDO ==================
+const blip = new Audio("./audio/blip1.wav");
+blip.volume = 0.4;
+blip.preload = "auto";
+
+// ================== INTRO ==================
+function startGame() {
+  // desbloquea audio con interacción real
+  blip.play().then(() => {
+    blip.pause();
+    blip.currentTime = 0;
+  }).catch(()=>{});
+
+  document.getElementById("introScreen").style.display = "none";
+  document.getElementById("gameScreen").style.display = "block";
+
+  // ⏱️ pequeño delay para asegurar que el audio quede activo
+  setTimeout(() => {
+    loadQuestion();
+  }, 100);
+}
+
+// ================== TIME ==================
+function formatTime(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}m ${seconds}s`;
+}
+
+// ================== TYPEWRITER ==================
+let typingInterval;
+
+function typeText(element, text, speed = 35) {
+  clearInterval(typingInterval);
+  element.textContent = "";
+
+  blip.currentTime = 0;
+  blip.play().catch(()=>{});
+
+  let i = 0;
+  typingInterval = setInterval(() => {
+    element.textContent += text.charAt(i);
+    i++;
+
+    if (i >= text.length) {
+      clearInterval(typingInterval);
+      blip.pause();
+      blip.currentTime = 0;
+    }
+  }, speed);
+}
+
+// ================== SHAKE ==================
+function screenShake() {
+  document.body.animate(
+    [
+      { transform: "translateX(0)" },
+      { transform: "translateX(-10px)" },
+      { transform: "translateX(10px)" },
+      { transform: "translateX(-10px)" },
+      { transform: "translateX(10px)" },
+      { transform: "translateX(0)" }
+    ],
+    { duration: 300 }
+  );
+}
+
+// ================== FLOWEY ==================
+const floweyByMistakes = [
+  "¿Eso era una respuesta?",
+  "JAJAJA… ya sabía que fallarías.",
+  "Vamos, humano. ¿En serio?",
+  "Cada error te hace más predecible.",
+  "¿Sigues intentando? Qué tierno."
+];
+
+function floweyMock() {
+  const idx = Math.min(mistakes - 1, floweyByMistakes.length - 1);
+  typeText(questionEl, "FLOWEY: " + floweyByMistakes[idx], 30);
+  setTimeout(() => typeText(questionEl, questions[current].q), 2200);
+}
+
+// ================== JUEGO ==================
+function loadQuestion() {
+  answerInput.value = "";
+  feedback.textContent = "";
+  personalMessage.textContent = "";
+  nextBtn.style.display = "none";
+  typeText(questionEl, questions[current].q);
+}
+
+
+function checkAnswer() {
+  const user = answerInput.value.trim().toLowerCase();
+  const correctAnswers = questions[current].a.map(a => a.toLowerCase());
+
+  if (correctAnswers.includes(user)) {
+    feedback.textContent = "✔ Correcto.";
+    feedback.style.color = "#4CAF50";
+
+    typeText(personalMessage, successMessages[current], 50);
+
+    correct++;
+    nextBtn.style.display = "block";
+  } else {
+    feedback.textContent = "✖ Incorrecto.";
+    feedback.style.color = "#FFD700";
+
+    perfectRun = false;
+    sessionStorage.setItem("perfectRun", "false");
+
+    mistakes++;
+    sessionStorage.setItem("mistakes", mistakes);
+
+    screenShake();
+    floweyMock();
+  }
+}
+
+
+function nextQuestion() {
+  current++;
+  if (current < questions.length) {
+    loadQuestion();
+  } else {
+    endGame();
+  }
+}
+
+function endGame() {
+  const endTime = Date.now();
+  const totalTime = endTime - gameStartTime;
+
+  let content = `
+    <h2 style="font-size: 30px">Felicidades! Has llegado al final de la seccion de preguntas, espero que te haya gustado la seccion de preguntas, llevo cocinando esto durante mucho tiempo el doble o quizas el triple que el regalo del año pasado, que sepas que te quiero mucho, este es mi regalo definitivo, pero no te preocupes que quizas el proximo año se me ocurra una idea mejor y perdon por no poder regalarte nada fisico, como la figura de Sanji que querias... Disfruta tu regalo.</h2>
+
+    <pstyle="font-size: 25px"><strong>Resultado:</strong> ${correct} / ${questions.length} respuestas correctas</p>
+    <pstyle="font-size: 25px"><strong>Errores cometidos:</strong> ${mistakes}</p>
+    <pstyle="font-size: 25px"><strong>Tiempo total:</strong> ${formatTime(totalTime)}</p>
+  `;
+
+  if (correct === questions.length && mistakes === 0) {
+  content += `<button onclick="unlock()">True Ending (No canon)</button>`;
+} else {
+  content += `
+    <p style="color:#FFD700;">
+      Flowey te observa…<br>
+      Este no era el mejor final.
+    </p>
+  `;
+}
+
+
+  content += `
+  <br>
+  <button onclick="goNext()">Abrir Regalo</button>
+
+  <div style="margin-top: 10px;">
+    <button 
+      onclick="secretReset()" 
+      style="
+        background: transparent;
+        border: none;
+        color: black;
+        font-size: 8px;
+        cursor: pointer;
+        margin-bottom: -35px;
+        Margin-top: -20px;
+      ">
+      --------
+    </button>
+  </div>
+`;
+
+  document.getElementById("gameScreen").innerHTML = content;
+}
+
+function goNext() {
+  window.location.href = "cloud.html"; // 👈 cambia la URL si quieres
+}
+
+function secretReset() {
+  sessionStorage.setItem("mistakes", "0");
+  sessionStorage.setItem("perfectRun", "true");
+  sessionStorage.setItem("cleanRunUnlocked", "true");
+  location.reload();
+}
+
+
+function unlock() {
+  window.location.href = "final.html"; // 👈 cambia la URL si quieres
+}
+</script>
+
+</body>
+
+</html>
+

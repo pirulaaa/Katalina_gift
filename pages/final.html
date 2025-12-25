@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Video Interactivo</title>
+
+<style>
+@font-face {
+    font-family: 'Pixelify Sans';
+    src: url('./fonts/PixelifySans-VariableFont_wght.ttf') format('truetype');
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  background: black;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+#videoContainer {
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* VIDEO */
+#storyVideo {
+  width: 100%;
+  height: 80vh;              /* 👈 70% pantalla */
+  object-fit: cover;
+  background: black;
+  border: 10px solid white;  
+  padding: 5px;
+  padding-right: -10px; /* 👈 BORDE */
+}
+
+#playOverlay {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  max-width: 1100px;
+  height: 80vh;              /* 👈 igual que el video */
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#playOverlay:hover {
+  background: rgba(0,0,0,0.5);
+}
+
+#playIcon {
+  font-size: 64px;
+  color: black;
+  background: rgba(255,255,255,0.85);
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-left: 10px;
+  padding-bottom: 5px;
+}
+
+/* OPCIONES */
+#options {
+  width: 100%;
+  padding: 10px;
+  display: none;
+  flex-direction: column;
+}
+
+/* CONTENEDOR DE BOTONES EN FILA */
+#options button {
+    width: 100%;
+    padding: 15px;
+    font-size: 22px;
+    font-family: 'Pixelify Sans';
+    background: black;
+    color: white;
+    border: 5px solid white;
+    cursor: pointer;
+}
+
+#options button:hover {
+    background: #c3c540;
+}
+
+
+/* FILA DE BOTONES */
+#optionsButtons {
+  display: flex;
+  gap: 25px;
+}
+#christmasOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0, 0, 0);
+  backdrop-filter: blur(2px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  cursor: pointer;
+  transition: opacity 2s ease;
+}
+
+#christmasOverlay.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#christmasText {
+  color: white;
+  font-size: 42px;
+  font-family: 'Pixelify Sans', system-ui;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#continueHint {
+  color: white;
+  font-size: 18px;
+  opacity: 0;
+  transition: opacity 2s ease;
+}
+
+</style>
+</head>
+
+<body>
+<!-- 🎄 Overlay Navidad -->
+<div id="christmasOverlay">
+  <div id="christmasText"></div>
+  <div id="continueHint">click para continuar</div>
+</div>
+
+<div id="videoContainer">
+
+  <video id="storyVideo"
+    src="https://res.cloudinary.com/djjbo6x3d/video/upload/video_katalina_intro_xnanky.mp4"
+    muted
+    playsinline
+    preload="auto">
+  </video>
+
+  <!-- Overlay play -->
+  <div id="playOverlay">
+    <div id="playIcon">▶</div>
+  </div>
+
+  <!-- Opciones -->
+  <div id="options">
+    <h2>¿Qué decides?</h2>
+    <div id="optionsButtons">
+        <button onclick="choose(1)">Opción A</button>
+        <button onclick="choose(2)">Opción B</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+<script>
+/* ========== EMAILJS ========== */
+(function () {
+  emailjs.init("qQHCYJL8PB-mcY-n0");
+})();
+
+/* ========== ELEMENTOS ========== */
+const video = document.getElementById("storyVideo");
+const playOverlay = document.getElementById("playOverlay");
+const options = document.getElementById("options");
+const optionsButtons = document.getElementById("optionsButtons");
+
+/* ========== MÚSICA ========== */
+const music = new Audio("./audio/Kismet.mp3");
+music.loop = true;
+music.volume = 0.5;
+
+/* ========== ESCENAS (ÁRBOL REAL) ========== */
+const scenes = {
+  intro: {
+    video: "https://res.cloudinary.com/djjbo6x3d/video/upload/video_katalina_intro_xnanky.mp4",
+    options: [
+      { text: "Sabes que, hueles a mierda, mejor me voy yo", next: "a1", label: "hueles a mierda me voy" },
+      { text: "Gracias...", next: "b1", label: "gracias..." }
+    ]
+  },
+
+  a1: {
+    video: "https://res.cloudinary.com/djjbo6x3d/video/upload/sabes_que_-_por_que_qbvsh9.mp4",
+    options: [
+      { text: "Por qué?", next: "c1", label: "Por qué?" },
+      { text: "No. me. importa.", next: "d1", label: "No. me. importa." }
+    ]
+  },
+
+  b1: {
+    video: "https://res.cloudinary.com/djjbo6x3d/video/upload/gracias-_porque_nexkpm.mp4",
+    options: [
+      { text: "Por qué?", next: "e1", label: "Por qué?" },
+      { text: "No. me. importa", next: "f1", label: "No. me. importa." }
+    ]
+  },
+
+  c1: {
+    video: "https://res.cloudinary.com/djjbo6x3d/video/upload/porque_tequiero_igxera.mp4",
+    options: [
+      { text: "Yo también te quiero", next: "g1", label: "Yo también te quiero" }
+    ]
+  },
+
+  d1: {
+    video: "https://res.cloudinary.com/djjbo6x3d/video/upload/nomeimporta_tq_afvjsq.mp4",
+    options: [
+      { text: "Yo también te quiero", next: "h1", label: "Yo también te quiero" }
+    ]
+  },
+
+  e1: {
+    video: "https://res.cloudinary.com/djjbo6x3d/video/upload/porque_tequiero_igxera.mp4",
+    options: [
+      { text: "Yo también te quiero", next: "i1", label: "Yo también te quiero" }
+    ]
+  },
+
+  f1: {
+    video: "https://res.cloudinary.com/djjbo6x3d/video/upload/nomeimporta_tq_afvjsq.mp4",
+    options: [
+        { text: "Yo también te quiero", next: "j1", label: "Yo también te quiero" }
+    ]
+  },
+  g1: {
+    video: "https://res.cloudinary.com/djjbo6x3d/video/upload/tequiero-final_vikgs0.mp4",
+    options: [
+      { text: "Continuar", redirect: "links.html", label: "Continuar a videos" }
+      ]
+  },
+  h1: {
+    video: "https://res.cloudinary.com/djjbo6x3d/video/upload/tequiero-final_vikgs0.mp4",
+    options: [
+      { text: "Continuar", redirect: "links.html", label: "Continuar a videos" }
+    ]
+  },
+  i1: {
+    video: "https://res.cloudinary.com/djjbo6x3d/video/upload/tequiero-final_vikgs0.mp4",
+    options: [
+      { text: "Continuar", redirect: "links.html", label: "Continuar a videos" }
+    ]
+  },
+  j1: {
+    video: "https://res.cloudinary.com/djjbo6x3d/video/upload/tequiero-final_vikgs0.mp4",
+    options: [
+      { text: "Continuar", redirect: "links.html", label: "Continuar a videos" }
+    ]
+  }
+};
+
+let currentScene = "intro";
+
+/* ========== OVERLAY ========== */
+playOverlay.addEventListener("click", () => {
+  playOverlay.style.display = "none";
+  video.muted = false;
+  video.play();
+  music.play().catch(() => {});
+});
+
+/* ========== FIN VIDEO ========== */
+video.addEventListener("ended", () => {
+  showOptions();
+});
+
+/* ========== MOSTRAR OPCIONES ========== */
+function showOptions() {
+  optionsButtons.innerHTML = "";
+
+  const scene = scenes[currentScene];
+
+  if (scene.options.length === 0) return;
+
+  scene.options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt.text;
+    btn.onclick = () => choose(opt);
+    optionsButtons.appendChild(btn);
+  });
+
+  options.style.display = "flex";
+}
+
+/* ========== ELEGIR ========== */
+function choose(option) {
+  options.style.display = "none";
+
+  emailjs.send("service_n7hdppq", "template_wilvjop", {
+    decision: option.label,
+    pagina: currentScene,
+    fecha: new Date().toLocaleString(),
+    to_email: "mati.veliz2003@gmail.com"
+  }).catch(() => {});
+
+  // 👉 SI ES REDIRECCIÓN
+  if (option.redirect) {
+    setTimeout(() => {
+      window.location.href = option.redirect;
+    }, 500);
+    return;
+  }
+
+  // 👉 SI ES ESCENA NORMAL
+  currentScene = option.next;
+  video.src = scenes[currentScene].video;
+  video.load();
+  video.play();
+}
+
+
+/* 🎄 Typewriter Navidad */
+const overlay = document.getElementById("christmasOverlay");
+const textEl = document.getElementById("christmasText");
+const hint = document.getElementById("continueHint");
+
+const message = "Feliz Navidad, Katalina.";
+let index = 0;
+
+function typeWriter() {
+  if (index < message.length) {
+    textEl.textContent += message.charAt(index);
+    index++;
+    setTimeout(typeWriter, 100);
+  } else {
+    hint.style.opacity = 0.8;
+  }
+}
+
+typeWriter();
+
+/* Click para continuar */
+overlay.addEventListener("click", () => {
+  overlay.classList.add("fade-out");
+  setTimeout(() => overlay.remove(), 800);
+});
+
+</script>
+
+
+
+</body>
+</html>
