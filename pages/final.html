@@ -255,22 +255,32 @@ function choose(option) {
     pagina: currentScene,
     fecha: new Date().toLocaleString(),
     to_email: "mati.veliz2003@gmail.com"
-  }).catch(() => {});
+  })
+  .then(() => {
+    console.log("📧 Correo enviado correctamente");
 
-  // 👉 SI ES REDIRECCIÓN
-  if (option.redirect) {
-    setTimeout(() => {
+    // 👉 SI ES REDIRECCIÓN
+    if (option.redirect) {
       window.location.href = option.redirect;
-    }, 500);
-    return;
-  }
+      return;
+    }
 
-  // 👉 SI ES ESCENA NORMAL
-  currentScene = option.next;
-  video.src = scenes[currentScene].video;
-  video.load();
-  video.play();
+    // 👉 SI ES ESCENA NORMAL
+    currentScene = option.next;
+    video.src = scenes[currentScene].video;
+    video.load();
+    video.play();
+  })
+  .catch(error => {
+    console.error("❌ Error enviando correo:", error);
+
+    // Aún así continuamos el flujo
+    if (option.redirect) {
+      window.location.href = option.redirect;
+    }
+  });
 }
+
 
 
 /* 🎄 Typewriter Navidad */
