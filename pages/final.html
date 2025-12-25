@@ -197,22 +197,18 @@ const scenes = {
   intro: {
     video: "https://res.cloudinary.com/djjbo6x3d/video/upload/true_ending_finalizado_wsz4eu.mp4",
     options: [
-      { text: "Relación", next: "a1", label: "Relacion" },
-      { text: "Amistad", next: "b1", label: "Amistad" }
-    ]
-  },
-
-  a1: {
-    video: "https://res.cloudinary.com/djjbo6x3d/video/upload/sabes_que_-_por_que_qbvsh9.mp4",
-    options: [
-      { text: "Continuar", redirect: "links.html", label: "Continuar a videos" }
-    ]
-  },
-
-  b1: {
-    video: "https://res.cloudinary.com/djjbo6x3d/video/upload/gracias-_porque_nexkpm.mp4",
-    options: [
-        { text: "Continuar", redirect: "links.html", label: "Continuar a videos" }
+      { 
+        text: "Relación", 
+        next: "a1", 
+        label: "Relacion",
+        redirect: "links.html"
+      },
+      { 
+        text: "Amistad", 
+        next: "b1", 
+        label: "Amistad",
+        redirect: "links.html"
+      }
     ]
   }
 };
@@ -282,7 +278,7 @@ const overlay = document.getElementById("christmasOverlay");
 const textEl = document.getElementById("christmasText");
 const hint = document.getElementById("continueHint");
 
-const message = "Feliz Navidad, Katalina.";
+const message = "Este final no es cannon, es solo un 'What if'... Feliz Navidad, Katalina.";
 let index = 0;
 
 function typeWriter() {
